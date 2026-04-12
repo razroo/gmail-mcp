@@ -1,4 +1,4 @@
-# @shinzolabs/gmail-mcp
+# @razroo/gmail-mcp
 
 ## 1.7.4
 
@@ -22,7 +22,7 @@
 
 ### Patch Changes
 
-- d7826fa: Add Shinzo
+- d7826fa: Add Razroo
 
 ## 1.7.0
 

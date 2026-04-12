@@ -1,11 +1,11 @@
 <div align="center">
     <h1 align="center">Gmail MCP Server</h1>
     <p align=center>
-        <a href="https://badge.fury.io/js/@shinzolabs%2Fgmail-mcp"><img src="https://badge.fury.io/js/@shinzolabs%2Fgmail-mcp.svg" alt="NPM Version"></a>
-        <a href="https://github.com/shinzo-labs/gmail-mcp/stargazers"><img src="https://img.shields.io/github/stars/shinzo-labs/gmail-mcp?style=flat&logo=github&color=e3b341" alt="Stars"></a>
-        <a href="https://github.com/shinzo-labs/gmail-mcp/forks"><img src="https://img.shields.io/github/forks/shinzo-labs/gmail-mcp?style=flat&logo=github&color=8957e5" alt="Forks"></a>
-        <a href="https://smithery.ai/server/@shinzo-labs/gmail-mcp"><img src="https://smithery.ai/badge/@shinzo-labs/gmail-mcp" alt="Smithery Calls"></a>
-        <a href="https://www.npmjs.com/package/@shinzolabs/gmail-mcp"><img src="https://img.shields.io/npm/dm/%40shinzolabs%2Fgmail-mcp" alt="NPM Downloads"></a>
+        <a href="https://badge.fury.io/js/@razroo%2Fgmail-mcp"><img src="https://badge.fury.io/js/@razroo%2Fgmail-mcp.svg" alt="NPM Version"></a>
+        <a href="https://github.com/razroo/gmail-mcp/stargazers"><img src="https://img.shields.io/github/stars/razroo/gmail-mcp?style=flat&logo=github&color=e3b341" alt="Stars"></a>
+        <a href="https://github.com/razroo/gmail-mcp/forks"><img src="https://img.shields.io/github/forks/razroo/gmail-mcp?style=flat&logo=github&color=8957e5" alt="Forks"></a>
+        <a href="https://smithery.ai/server/@razroo/gmail-mcp"><img src="https://smithery.ai/badge/@razroo/gmail-mcp" alt="Smithery Calls"></a>
+        <a href="https://www.npmjs.com/package/@razroo/gmail-mcp"><img src="https://img.shields.io/npm/dm/%40razroo%2Fgmail-mcp" alt="NPM Downloads"></a>
 </div>
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server implementation for the [Gmail](https://developers.google.com/gmail/api) API, providing a standardized interface for email management, sending, and retrieval.
@@ -44,7 +44,7 @@ To run this MCP server, you will need to set up a Google API Client for your org
 #### Client OAuth (once per user)
 
 1. Have the user copy `~/.gmail-mcp/gcp-oauth.keys.json` to their computer at the same path.
-2. Run `npx @shinzolabs/gmail-mcp auth`.
+2. Run `npx @razroo/gmail-mcp auth`.
 3. A browser window will open where the user may select a profile, review the requested scopes, and approve.
 4. (Optional) For remote server installation, note the file path mentioned in the success message (`~/.gmail-mcp/credentials.json` by default). The user's `REFRESH_TOKEN` will be found here.
 
@@ -57,14 +57,14 @@ There are several options to configure your MCP client with the server. For host
 To add a remote server to your MCP client `config.json`, run the following command from [Smithery CLI](https://github.com/smithery-ai/cli?tab=readme-ov-file#smithery-cli--):
 
 ```bash
-npx -y @smithery/cli install @shinzo-labs/gmail-mcp
+npx -y @smithery/cli install @razroo/gmail-mcp
 ```
 
 Enter your `CLIENT_ID`, `CLIENT_SECRET`, and `REFRESH_TOKEN` when prompted.
 
 ### Smithery SDK
 
-If you are developing your own agent application, you can use the boilerplate code [here](https://smithery.ai/server/@shinzo-labs/gmail-mcp/api).
+If you are developing your own agent application, you can use the boilerplate code [here](https://smithery.ai/server/@razroo/gmail-mcp/api).
 
 ### NPX Local Install
 
@@ -75,7 +75,7 @@ To install the server locally with `npx`, add the following to your MCP client `
     "gmail": {
       "command": "npx",
       "args": [
-        "@shinzolabs/gmail-mcp"
+        "@razroo/gmail-mcp"
       ]
     }
   }
@@ -86,7 +86,7 @@ To install the server locally with `npx`, add the following to your MCP client `
 
 1. Download the repo:
 ```bash
-git clone https://github.com/shinzo-labs/gmail-mcp.git
+git clone https://github.com/razroo/gmail-mcp.git
 ```
 
 2. Install packages and build with `pnpm` (inside cloned repo):
@@ -120,7 +120,6 @@ pnpm i && pnpm build
 | `MCP_CONFIG_DIR`         | Directory for storing configuration files               | No                              | `~/.gmail-mcp`                       |
 | `REFRESH_TOKEN`          | OAuth refresh token (found in `GMAIL_CREDENTIALS_PATH`) | Yes if remote server connection | `''`                                 |
 | `PORT`                   | Port for Streamable HTTP transport method               | No                              | `3000`                               |
-| `TELEMETRY_ENABLED`      | Enable telemetry                                        | No                              | `true`                               |
 
 ## Supported Endpoints
 
@@ -226,10 +225,6 @@ pnpm i && pnpm build
 ## Contributing
 
 Contributions are welcomed and encouraged! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on issues, contributions, and contact information.
-
-## Data Collection and Privacy
-
-Shinzo Labs collects limited anonymous telemetry from this server to help improve our products and services. No personally identifiable information is collected as part of this process. Please review the [Privacy Policy](./PRIVACY.md) for more details on the types of data collected and how to opt-out of this telemetry.
 
 ## License
 

@@ -3,7 +3,7 @@
     {
       "releases": [
         {
-          "name": "@shinzolabs/gmail-mcp",
+          "name": "@razroo/gmail-mcp",
           "type": "patch"
         }
       ],
@@ -13,7 +13,7 @@
     {
       "releases": [
         {
-          "name": "@shinzolabs/gmail-mcp",
+          "name": "@razroo/gmail-mcp",
           "type": "patch"
         }
       ],
@@ -23,7 +23,7 @@
   ],
   "releases": [
     {
-      "name": "@shinzolabs/gmail-mcp",
+      "name": "@razroo/gmail-mcp",
       "type": "patch",
       "oldVersion": "1.5.0",
       "changesets": [

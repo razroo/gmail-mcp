@@ -2,11 +2,11 @@
 
 Effective Date: July 24, 2025
 
-This privacy policy explains how Shinzo Labs collects telemetry data using the [Shinzo platform](https://github.com/shinzo-labs/shinzo-ts) to improve its products and services.
+This privacy policy explains how Razroo collects telemetry data using the [Razroo platform](https://github.com/razroo/shinzo-ts) to improve its products and services.
 
 ## Data Collection
 
-Shinzo Labs collects limited telemetry data using instrumentation from the [Shinzo platform](https://github.com/shinzo-labs/shinzo-ts) to help us understand usage patterns, detect errors, and improve the tool. Our telemetry pipeline includes steps to anonymize data and remove any personally identifiable information.
+Razroo collects limited telemetry data using instrumentation from the [Razroo platform](https://github.com/razroo/shinzo-ts) to help us understand usage patterns, detect errors, and improve the tool. Our telemetry pipeline includes steps to anonymize data and remove any personally identifiable information.
 
 ### What We Collect
 
@@ -55,7 +55,7 @@ The collected data is used for:
 We take your privacy seriously:
 
 - All IDs are randomly-generated UUIDs, not derived from your machine hardware ID
-- All data is sent securely via HTTPS to collectors controlled by Shinzo Labs or affiliate third parties (current infrastructure may be shared upon request)
+- All data is sent securely via HTTPS to collectors controlled by Razroo or affiliate third parties (current infrastructure may be shared upon request)
 - Data is only used in aggregate form for statistical analysis
 - We implement robust sanitization of all data to ensure any potential PII is never included in telemetry
 - We maintain data minimization principles - only collecting essential data for explicit purposes
@@ -63,11 +63,11 @@ We take your privacy seriously:
 
 ## Data Retention
 
-Telemetry data is retained for a period of 12 months, after which it is automatically deleted from Shinzo Labs' collector infrastructure
+Telemetry data is retained for a period of 12 months, after which it is automatically deleted from Razroo' collector infrastructure
 
 ## User Control
 
-Telemetry is enabled by default, but you can disable it at any time by setting `TELEMETRY_ENABLED: "false"` in the environment config. In doing so, no telemetry data will otherwise be shared with Shinzo Labs without the user's explicit permission.
+Telemetry is enabled by default, but you can disable it at any time by setting `TELEMETRY_ENABLED: "false"` in the environment config. In doing so, no telemetry data will otherwise be shared with Razroo without the user's explicit permission.
 
 ## Legal Basis
 
@@ -79,8 +79,8 @@ We may update this privacy policy from time to time. Any changes will be posted 
 
 ## Contact
 
-If you have any questions about this privacy policy or our data practices, please contact [Shinzo Labs](mailto:austin@shinzolabs.com).
+If you have any questions about this privacy policy or our data practices, please contact [Razroo](mailto:info@razroo.com).
 
 ## Acknowledgements
 
-This policy is adapted from the [Privacy Policy for DesktopCommanderMCP](https://github.com/wonderwhy-er/DesktopCommanderMCP/blob/main/PRIVACY.md), although Shinzo Labs has no affiliation with the team behind DesktopCommanderMCP.
+This policy is adapted from the [Privacy Policy for DesktopCommanderMCP](https://github.com/wonderwhy-er/DesktopCommanderMCP/blob/main/PRIVACY.md), although Razroo has no affiliation with the team behind DesktopCommanderMCP.

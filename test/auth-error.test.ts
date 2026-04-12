@@ -41,7 +41,7 @@ describe("Authentication Error Handling", () => {
         error.code === 403
       ) {
         return formatResponse({
-          error: `Authentication failed: ${error.message}. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth`,
+          error: `Authentication failed: ${error.message}. Please re-authenticate by running: npx @razroo/gmail-mcp auth`,
         });
       }
 
@@ -61,7 +61,7 @@ describe("Authentication Error Handling", () => {
           type: "text",
           text: JSON.stringify({
             error:
-              "Authentication failed: invalid_grant: Token has been expired or revoked. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth",
+              "Authentication failed: invalid_grant: Token has been expired or revoked. Please re-authenticate by running: npx @razroo/gmail-mcp auth",
           }),
         },
       ],
@@ -78,7 +78,7 @@ describe("Authentication Error Handling", () => {
           type: "text",
           text: JSON.stringify({
             error:
-              "Authentication failed: refresh_token is invalid. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth",
+              "Authentication failed: refresh_token is invalid. Please re-authenticate by running: npx @razroo/gmail-mcp auth",
           }),
         },
       ],
@@ -97,7 +97,7 @@ describe("Authentication Error Handling", () => {
           type: "text",
           text: JSON.stringify({
             error:
-              "Authentication failed: Request failed with status code 401. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth",
+              "Authentication failed: Request failed with status code 401. Please re-authenticate by running: npx @razroo/gmail-mcp auth",
           }),
         },
       ],
@@ -116,7 +116,7 @@ describe("Authentication Error Handling", () => {
           type: "text",
           text: JSON.stringify({
             error:
-              "Authentication failed: Request failed with status code 403. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth",
+              "Authentication failed: Request failed with status code 403. Please re-authenticate by running: npx @razroo/gmail-mcp auth",
           }),
         },
       ],
@@ -133,7 +133,7 @@ describe("Authentication Error Handling", () => {
           type: "text",
           text: JSON.stringify({
             error:
-              "Authentication failed: invalid_client: The OAuth client was not found. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth",
+              "Authentication failed: invalid_client: The OAuth client was not found. Please re-authenticate by running: npx @razroo/gmail-mcp auth",
           }),
         },
       ],
@@ -152,7 +152,7 @@ describe("Authentication Error Handling", () => {
           type: "text",
           text: JSON.stringify({
             error:
-              "Authentication failed: unauthorized_client: The client is not authorized. Please re-authenticate by running: npx @shinzolabs/gmail-mcp auth",
+              "Authentication failed: unauthorized_client: The client is not authorized. Please re-authenticate by running: npx @razroo/gmail-mcp auth",
           }),
         },
       ],

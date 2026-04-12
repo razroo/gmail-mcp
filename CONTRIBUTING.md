@@ -16,11 +16,11 @@ To test the server with a real account, also follow the steps in [Google Workspa
 
 ### Issues
 
-If you would like to raise any issues, please do so in the [Issues](https://github.com/shinzo-labs/gmail-mcp/issues) section and a core contributor will respond in a timely manner. Issue threads may be closed if there are no additional comments added within 7 days of the last update on the thread.
+If you would like to raise any issues, please do so in the [Issues](https://github.com/razroo/gmail-mcp/issues) section and a core contributor will respond in a timely manner. Issue threads may be closed if there are no additional comments added within 7 days of the last update on the thread.
 
 ### Code Contributions
 
-If you would like to contribute code to the codebase, please contact austin@shinzolabs.com to discuss what feature you would like to add, or what features/bugs you may be able to own from the queue. The steps to then contribute would be:
+If you would like to contribute code to the codebase, please contact info@razroo.com to discuss what feature you would like to add, or what features/bugs you may be able to own from the queue. The steps to then contribute would be:
 1. Create a fork version of the repo.
 2. Open a branch with a name prefixed with `feat/`, `fix/`, or `chore/`.
 3. Implement the desired changes.
@@ -32,4 +32,4 @@ If you would like to contribute code to the codebase, please contact austin@shin
 
 ## Contact
 
-If you have any questions or comments about the guidelines here or anything else about the software, please contact austin@shinzolabs.com or open an issue.
+If you have any questions or comments about the guidelines here or anything else about the software, please contact info@razroo.com or open an issue.
