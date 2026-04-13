@@ -1327,7 +1327,16 @@ const main = async () => {
   fs.mkdirSync(MCP_CONFIG_DIR, { recursive: true })
 
   if (process.argv[2] === 'auth') {
-    if (!defaultOAuth2Client) throw new Error('OAuth2 client could not be created, please check your credentials')
+    if (!defaultOAuth2Client) {
+      console.error('Error: No OAuth2 credentials found.\n')
+      console.error('You need to provide Google OAuth2 credentials using one of these methods:\n')
+      console.error('Option 1: Create a credentials file at ~/.gmail-mcp/gcp-oauth.keys.json')
+      console.error('  Download it from Google Cloud Console > APIs & Services > Credentials')
+      console.error('  (Create an OAuth 2.0 Client ID of type "Desktop app")\n')
+      console.error('Option 2: Set environment variables')
+      console.error('  CLIENT_ID=your-client-id CLIENT_SECRET=your-secret npx @razroo/gmail-mcp auth\n')
+      process.exit(1)
+    }
     await launchAuthServer(defaultOAuth2Client)
     process.exit(0)
   }

@@ -17,9 +17,9 @@ const getEnvBasedCredentials = (queryConfig?: Record<string, any>) => {
   const clientSecret = queryConfig?.CLIENT_SECRET || CLIENT_SECRET
   const refreshToken = queryConfig?.REFRESH_TOKEN || REFRESH_TOKEN
 
-  if (!clientId || !clientSecret || !refreshToken) return null
+  if (!clientId || !clientSecret) return null
 
-  return { clientId, clientSecret, refreshToken }
+  return { clientId, clientSecret, refreshToken: refreshToken || null }
 }
 
 const getFileBasedCredentials = () => {
@@ -47,13 +47,17 @@ export const createOAuth2Client = (queryConfig?: Record<string, any>) => {
 
     if (!credentials) credentials = getFileBasedCredentials()
 
+    if (!credentials?.clientId || !credentials?.clientSecret) {
+      return null
+    }
+
     const oauth2Client = new OAuth2Client({
-      clientId: credentials?.clientId,
-      clientSecret: credentials?.clientSecret,
+      clientId: credentials.clientId,
+      clientSecret: credentials.clientSecret,
       redirectUri: `http://localhost:${AUTH_SERVER_PORT}/oauth2callback`
     })
 
-    if (credentials?.refreshToken) oauth2Client.setCredentials({ refresh_token: credentials.refreshToken })
+    if (credentials.refreshToken) oauth2Client.setCredentials({ refresh_token: credentials.refreshToken })
 
     return oauth2Client
   } catch (error: any) {
