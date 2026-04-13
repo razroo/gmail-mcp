@@ -12,10 +12,20 @@ const AUTH_SCOPES = [
   'https://www.googleapis.com/auth/gmail.settings.sharing'
 ]
 
+const getRefreshTokenFromFile = () => {
+  if (fs.existsSync(GMAIL_CREDENTIALS_PATH)) {
+    try {
+      const gmailCredentialsFile = JSON.parse(fs.readFileSync(GMAIL_CREDENTIALS_PATH, 'utf8'))
+      return gmailCredentialsFile?.refresh_token || null
+    } catch { return null }
+  }
+  return null
+}
+
 const getEnvBasedCredentials = (queryConfig?: Record<string, any>) => {
   const clientId = queryConfig?.CLIENT_ID || CLIENT_ID
   const clientSecret = queryConfig?.CLIENT_SECRET || CLIENT_SECRET
-  const refreshToken = queryConfig?.REFRESH_TOKEN || REFRESH_TOKEN
+  const refreshToken = queryConfig?.REFRESH_TOKEN || REFRESH_TOKEN || getRefreshTokenFromFile()
 
   if (!clientId || !clientSecret) return null
 
@@ -32,11 +42,7 @@ const getFileBasedCredentials = () => {
   const clientId = parsedKeys?.installed?.client_id || parsedKeys?.web?.client_id
   const clientSecret = parsedKeys?.installed?.client_secret || parsedKeys?.web?.client_secret
 
-  let refreshToken = null
-  if (fs.existsSync(GMAIL_CREDENTIALS_PATH)) {
-    const gmailCredentialsFile = JSON.parse(fs.readFileSync(GMAIL_CREDENTIALS_PATH, 'utf8'))
-    refreshToken = gmailCredentialsFile?.refresh_token
-  }
+  const refreshToken = getRefreshTokenFromFile()
 
   return { clientId, clientSecret, refreshToken }
 }
