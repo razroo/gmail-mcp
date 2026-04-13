@@ -67,9 +67,20 @@ export const createOAuth2Client = (queryConfig?: Record<string, any>) => {
 
 export const launchAuthServer = async (oauth2Client: OAuth2Client) => new Promise((resolve, reject) => {
   const server = http.createServer()
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Error: Port ${AUTH_SERVER_PORT} is already in use.`)
+      console.error(`Either stop the other process or set a different port:`)
+      console.error(`  AUTH_SERVER_PORT=3001 npx @razroo/gmail-mcp auth\n`)
+      process.exit(1)
+    }
+    reject(err)
+  })
+
   server.listen(AUTH_SERVER_PORT)
 
-  const authUrl = oauth2Client.generateAuthUrl({ access_type: 'offline', scope: AUTH_SCOPES })
+  const authUrl = oauth2Client.generateAuthUrl({ access_type: 'offline', scope: AUTH_SCOPES, prompt: 'consent' })
 
   console.log(`Please visit this URL to authenticate: ${authUrl}`)
 
