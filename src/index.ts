@@ -1346,9 +1346,23 @@ const main = async () => {
   const transport = new StdioServerTransport()
   await stdioServer.connect(transport)
 
-  // Streamable HTTP Server
-  const { app } = createStatefulServer(createServer)
-  app.listen(PORT)
+  // Streamable HTTP Server — only needed for remote MCP clients that
+  // connect over HTTP. Stdio above is what local clients (Claude
+  // Desktop, opencode, etc.) use, so this listener is optional. If
+  // the port is already bound (e.g. a zombie gmail-mcp from a prior
+  // session, or a second instance in another project), we log and
+  // continue rather than crashing — stdio keeps working.
+  if (process.env.DISABLE_HTTP !== 'true') {
+    const { app } = createStatefulServer(createServer)
+    const httpServer = app.listen(PORT)
+    httpServer.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`[gmail-mcp] Port ${PORT} is in use — Streamable HTTP transport disabled. Stdio transport is unaffected. Set PORT=<other> or DISABLE_HTTP=true to silence.`)
+      } else {
+        console.error(`[gmail-mcp] HTTP transport failed to start:`, err.message)
+      }
+    })
+  }
 }
 
 main()

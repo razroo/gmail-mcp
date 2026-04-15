@@ -1,6 +1,6 @@
 {
   "name": "@razroo/gmail-mcp",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "description": "Gmail MCP - Provides complete Gmail API access with file-based OAuth2 authentication",
   "type": "module",
   "bin": {
