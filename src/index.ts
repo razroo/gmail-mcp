@@ -332,7 +332,7 @@ const constructRawMessage = async (gmail: gmail_v1.Gmail, params: NewMessage) =>
 function createServer({ config }: { config?: Record<string, any> }) {
   const serverInfo = {
     name: "Gmail-MCP",
-    version: "1.8.0",
+    version: "1.8.1",
     description: "Gmail MCP - Provides complete Gmail API access with file-based OAuth2 authentication"
   }
 
