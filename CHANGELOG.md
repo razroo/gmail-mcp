@@ -1,5 +1,23 @@
 # @razroo/gmail-mcp
 
+## 1.8.0
+
+### Minor Changes
+
+- File-path attachment support for `create_draft` and `send_message`. Callers pass
+  `attachments: [{path, filename?, mimeType?}]` — the server reads each file from
+  disk and builds a multipart/mixed MIME message. Previously the only attachment
+  path was to pre-build a ~230KB base64url RFC-2822 blob inline in the `raw`
+  parameter, which blew past tool-call argument limits for any real PDF/image.
+  Empirically this blocked every mailto-apply email-with-CV workflow; observed
+  2026-04-19 across CoPlane / Rinse / Gambit / DHS sends that had to bypass the
+  MCP entirely.
+- Subject header now auto-MIME-encodes (RFC 2047 `=?UTF-8?B?...?=`) when it
+  contains non-ASCII characters, fixing em-dash / smart-quote mojibake observed
+  in the same session.
+- No breaking changes — existing callers using `raw` or plain text bodies behave
+  identically.
+
 ## 1.7.4
 
 ### Patch Changes
