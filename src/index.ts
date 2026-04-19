@@ -19,6 +19,12 @@ type MessagePartHeader = gmail_v1.Schema$MessagePartHeader
 type MessageSendParams = gmail_v1.Params$Resource$Users$Messages$Send
 type Thread = gmail_v1.Schema$Thread
 
+type Attachment = {
+  path: string
+  filename?: string
+  mimeType?: string
+}
+
 type NewMessage = {
   threadId?: string
   raw?: string
@@ -28,6 +34,56 @@ type NewMessage = {
   subject?: string | undefined
   body?: string | undefined
   includeBodyHtml?: boolean
+  attachments?: Attachment[]
+}
+
+// Minimal extension → MIME type table for common attachment kinds. Extend
+// as needed; unknown extensions fall back to application/octet-stream.
+const MIME_TYPES: Record<string, string> = {
+  pdf: 'application/pdf',
+  txt: 'text/plain',
+  md: 'text/markdown',
+  html: 'text/html',
+  htm: 'text/html',
+  json: 'application/json',
+  xml: 'application/xml',
+  csv: 'text/csv',
+  tsv: 'text/tab-separated-values',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  zip: 'application/zip',
+  tar: 'application/x-tar',
+  gz: 'application/gzip',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  doc: 'application/msword',
+  xls: 'application/vnd.ms-excel',
+  ppt: 'application/vnd.ms-powerpoint',
+}
+
+function detectMimeType(pathOrName: string): string {
+  const ext = pathOrName.split('.').pop()?.toLowerCase() ?? ''
+  return MIME_TYPES[ext] ?? 'application/octet-stream'
+}
+
+function encodeMimeHeader(value: string): string {
+  // RFC 2047: ASCII-only headers pass through; anything else gets encoded-word B encoding.
+  if (/^[\x00-\x7F]*$/.test(value)) return value
+  return `=?UTF-8?B?${Buffer.from(value, 'utf-8').toString('base64')}?=`
+}
+
+function readAttachment(att: Attachment): { filename: string; mimeType: string; base64: string } {
+  const data = fs.readFileSync(att.path)
+  const filename = att.filename ?? att.path.split('/').pop() ?? 'attachment'
+  const mimeType = att.mimeType ?? detectMimeType(filename)
+  // RFC 2045: base64 payloads wrapped to 76-char lines.
+  const b64 = data.toString('base64').match(/.{1,76}/g)?.join('\r\n') ?? ''
+  return { filename, mimeType, base64: b64 }
 }
 
 const RESPONSE_HEADERS_LIST = [
@@ -204,54 +260,99 @@ const constructRawMessage = async (gmail: gmail_v1.Gmail, params: NewMessage) =>
     thread = data
   }
 
-  const message = []
-  if (params.to?.length) message.push(`To: ${wrapTextBody(params.to.join(', '))}`)
-  if (params.cc?.length) message.push(`Cc: ${wrapTextBody(params.cc.join(', '))}`)
-  if (params.bcc?.length) message.push(`Bcc: ${wrapTextBody(params.bcc.join(', '))}`)
+  const hasAttachments = params.attachments && params.attachments.length > 0
+  const headers: string[] = []
+  if (params.to?.length) headers.push(`To: ${wrapTextBody(params.to.join(', '))}`)
+  if (params.cc?.length) headers.push(`Cc: ${wrapTextBody(params.cc.join(', '))}`)
+  if (params.bcc?.length) headers.push(`Bcc: ${wrapTextBody(params.bcc.join(', '))}`)
   if (thread) {
-    message.push(...getThreadHeaders(thread).map(header => wrapTextBody(header)))
+    headers.push(...getThreadHeaders(thread).map(header => wrapTextBody(header)))
   } else if (params.subject) {
-    message.push(`Subject: ${wrapTextBody(params.subject)}`)
+    headers.push(`Subject: ${encodeMimeHeader(params.subject)}`)
   } else {
-    message.push('Subject: (No Subject)')
+    headers.push('Subject: (No Subject)')
   }
-  message.push('Content-Type: text/plain; charset="UTF-8"')
-  message.push('Content-Transfer-Encoding: quoted-printable')
-  message.push('MIME-Version: 1.0')
-  message.push('')
+  headers.push('MIME-Version: 1.0')
 
-  if (params.body) message.push(wrapTextBody(params.body))
-
+  // Build the body text. When the message has a quoted reply chain we
+  // keep the legacy behavior (plain body + quoted content).
+  const bodyParts: string[] = []
+  if (params.body) bodyParts.push(wrapTextBody(params.body))
   if (thread) {
     const quotedContent = getQuotedContent(thread)
     if (quotedContent) {
-      message.push('')
-      message.push(wrapTextBody(quotedContent))
+      bodyParts.push('')
+      bodyParts.push(wrapTextBody(quotedContent))
     }
   }
+  const bodyText = bodyParts.join('\r\n')
 
-  return Buffer.from(message.join('\r\n')).toString('base64url').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  let mimeBlock: string
+  if (hasAttachments) {
+    // multipart/mixed wrapping: body as first part, each attachment as a
+    // subsequent part. Built server-side so callers never need to inline
+    // the base64 payload in tool arguments.
+    const boundary = `----gmail-mcp-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+    const parts: string[] = [
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/plain; charset="UTF-8"',
+      'Content-Transfer-Encoding: quoted-printable',
+      '',
+      bodyText,
+    ]
+    for (const att of params.attachments!) {
+      const { filename, mimeType, base64 } = readAttachment(att)
+      parts.push(
+        '',
+        `--${boundary}`,
+        `Content-Type: ${mimeType}; name="${filename}"`,
+        'Content-Transfer-Encoding: base64',
+        `Content-Disposition: attachment; filename="${filename}"`,
+        '',
+        base64,
+      )
+    }
+    parts.push('', `--${boundary}--`)
+    mimeBlock = parts.join('\r\n')
+  } else {
+    mimeBlock = [
+      'Content-Type: text/plain; charset="UTF-8"',
+      'Content-Transfer-Encoding: quoted-printable',
+      '',
+      bodyText,
+    ].join('\r\n')
+  }
+
+  const fullMessage = [...headers, mimeBlock].join('\r\n')
+  return Buffer.from(fullMessage).toString('base64url').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 function createServer({ config }: { config?: Record<string, any> }) {
   const serverInfo = {
     name: "Gmail-MCP",
-    version: "1.7.4",
+    version: "1.8.0",
     description: "Gmail MCP - Provides complete Gmail API access with file-based OAuth2 authentication"
   }
 
   const server = new McpServer(serverInfo)
 
   server.tool("create_draft",
-    "Create a draft email in Gmail. Note the mechanics of the raw parameter.",
+    "Create a draft email in Gmail. Pass attachments by file path — files are read server-side, so base64 content never has to be inlined in the tool call.",
     {
-      raw: z.string().optional().describe("The entire email message in base64url encoded RFC 2822 format, ignores params.to, cc, bcc, subject, body, includeBodyHtml if provided"),
+      raw: z.string().optional().describe("The entire email message in base64url encoded RFC 2822 format, ignores params.to, cc, bcc, subject, body, includeBodyHtml, attachments if provided"),
       threadId: z.string().optional().describe("The thread ID to associate this draft with"),
       to: z.array(z.string()).optional().describe("List of recipient email addresses"),
       cc: z.array(z.string()).optional().describe("List of CC recipient email addresses"),
       bcc: z.array(z.string()).optional().describe("List of BCC recipient email addresses"),
-      subject: z.string().optional().describe("The subject of the email"),
+      subject: z.string().optional().describe("The subject of the email (non-ASCII subjects are automatically MIME-encoded per RFC 2047)"),
       body: z.string().optional().describe("The body of the email"),
+      attachments: z.array(z.object({
+        path: z.string().describe("Absolute file path to the attachment, read server-side"),
+        filename: z.string().optional().describe("Override filename shown in the email (defaults to basename of path)"),
+        mimeType: z.string().optional().describe("Override MIME type (auto-detected from extension if omitted)")
+      })).optional().describe("Files to attach. Server reads each path from disk and builds a multipart/mixed MIME message — callers pass paths, not base64 blobs."),
       includeBodyHtml: z.boolean().optional().describe("Whether to include the parsed HTML in the return for each body, excluded by default because they can be excessively large")
     },
     async (params) => {
@@ -621,15 +722,20 @@ function createServer({ config }: { config?: Record<string, any> }) {
   )
 
   server.tool("send_message",
-    "Send an email message to specified recipients. Note the mechanics of the raw parameter.",
+    "Send an email message to specified recipients. Pass attachments by file path — files are read server-side, so base64 content never has to be inlined in the tool call.",
     {
-      raw: z.string().optional().describe("The entire email message in base64url encoded RFC 2822 format, ignores params.to, cc, bcc, subject, body, includeBodyHtml if provided"),
+      raw: z.string().optional().describe("The entire email message in base64url encoded RFC 2822 format, ignores params.to, cc, bcc, subject, body, includeBodyHtml, attachments if provided"),
       threadId: z.string().optional().describe("The thread ID to associate this message with"),
       to: z.array(z.string()).optional().describe("List of recipient email addresses"),
       cc: z.array(z.string()).optional().describe("List of CC recipient email addresses"),
       bcc: z.array(z.string()).optional().describe("List of BCC recipient email addresses"),
-      subject: z.string().optional().describe("The subject of the email"),
+      subject: z.string().optional().describe("The subject of the email (non-ASCII subjects are automatically MIME-encoded per RFC 2047)"),
       body: z.string().optional().describe("The body of the email"),
+      attachments: z.array(z.object({
+        path: z.string().describe("Absolute file path to the attachment, read server-side"),
+        filename: z.string().optional().describe("Override filename shown in the email (defaults to basename of path)"),
+        mimeType: z.string().optional().describe("Override MIME type (auto-detected from extension if omitted)")
+      })).optional().describe("Files to attach. Server reads each path from disk and builds a multipart/mixed MIME message — callers pass paths, not base64 blobs."),
       includeBodyHtml: z.boolean().optional().describe("Whether to include the parsed HTML in the return for each body, excluded by default because they can be excessively large")
     },
     async (params) => {
